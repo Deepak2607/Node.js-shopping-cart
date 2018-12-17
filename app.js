@@ -15,17 +15,14 @@ const LocalStrategy = require('passport-local').Strategy;
 const MongoStore = require('connect-mongo')(session);
 
 
-
-
-
 const app= express();
 const port= process.env.PORT || 8000;
 app.use(express.static(path.join(__dirname, 'public')));
 
 
 //database-connection
-mongoose.Promise= global.Promise;
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/shopping-cart',{ useNewUrlParser: true });
+//mongoose.Promise= global.Promise;
+mongoose.connect(process.env.MONGODB_URI ||'mongodb://localhost:27017/shopping-cart',{ useNewUrlParser: true });
 
 
 //upload-middleware
