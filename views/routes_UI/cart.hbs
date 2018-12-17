@@ -1,0 +1,39 @@
+<br>
+<div class="row">
+<div class="col-md-4"></div>
+<div class="col-md-4">
+       {{#if itemsArray}}
+  <ul class="list-group"> 
+  {{#each itemsArray}}
+  <li class="list-group-item">
+  <span style="font-weight:bold">{{item.title}}</span>
+   &ensp;
+  <span class="badge badge-success">${{item.price}}</span>   
+   &ensp;&ensp;
+      
+  <div class="btn-group">
+  <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    Change
+  </button>
+  <div class="dropdown-menu">
+    <a class="dropdown-item" href="#">Reduce by 1</a>
+    <a class="dropdown-item" href="#">Remove all</a>
+  </div>
+  </div>
+      
+    <span style="float:right" class="badge badge-secondary badge-pill">{{qty}}</span> 
+  </li> 
+      {{/each}}
+  </ul>
+    <br>
+    <h5>Total Amount: ${{cart.totalPrice}}</h5> 
+    <hr>
+    <button type="button" class="btn btn-success">Checkout</button>
+     {{else}}
+    <h4 align="center">No items in cart</h4>
+    {{/if}}
+
+    
+</div>
+<div class="col-md-4"></div>
+</div>

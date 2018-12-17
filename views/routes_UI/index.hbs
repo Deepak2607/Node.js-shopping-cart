@@ -1,0 +1,34 @@
+
+{{#if success}}
+<br>
+<div class="alert alert-success">
+{{success}}
+</div>
+{{/if}}
+
+{{#if error_message}}
+<br>
+<div class="alert alert-danger">
+{{error_message}}
+</div>
+{{/if}}
+
+
+{{#each productChunks}}
+<div class="row">
+{{#each this}}
+<div class="col-sm-6 col-md-3">
+<div class="card" style="width:16rem;">
+  <img style="padding:10px" height="300px" class="card-img-top" src={{imagePath}}>
+  <div class="card-body">
+    <h5 class="card-title">{{title}}</h5>
+    <p style="color:#696969" class="card-text">{{description}}</p>
+    <span style="font-size:25px;font-weight:bold">${{price}}</span>
+    <a style="float:right" href="/add-to-cart/{{_id}}" class="btn btn-success">Add to cart</a>
+  </div>
+</div>  
+</div>
+{{/each}}  
+</div>
+<br>
+{{/each}}  
