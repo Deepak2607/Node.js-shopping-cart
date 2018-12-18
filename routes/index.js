@@ -6,6 +6,7 @@ const {User}= require('../models/user');
 const Cart= require('../models/cart');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
+var cookieParser = require('cookie-parser');
 
 router.all('/*',(req,res,next)=> {
     req.app.locals.layout= 'layout';
@@ -13,7 +14,7 @@ router.all('/*',(req,res,next)=> {
 })
 
 const isLoggedout= (req,res,next)=> {
-    if(! req.isAuthenticated()){
+    if(! req.isAuthenticated()){  
         next();
     }else{
         req.flash('error_message',`You need to logout first.`);
@@ -24,6 +25,19 @@ const isLoggedout= (req,res,next)=> {
 const isLoggedin= (req,res,next)=> {
     if(req.isAuthenticated()){
         
+        User.findOne({email:req.user.email}).then((user)=> {
+            req.session.cart= user.cart;
+        })
+//        console.log(req.session.cart);
+        next();    
+    }else{
+        req.flash('error_message',`You need to login first.`);
+        res.redirect('/');
+    }
+}
+
+const isLoggedin_4_logout= (req,res,next)=> {
+    if(req.isAuthenticated()){
         next();    
     }else{
 //        req.flash('error_message',`You need to logout first.`);
@@ -51,23 +65,45 @@ router.get('/profile',isLoggedin,(req,res,next)=> {
 
     
 
-router.get('/add-to-cart/:id',isLoggedin,(req,res,next)=> {
+router.put('/add-to-cart/:id',(req,res,next)=> {
 
     let cart= new Cart(req.session.cart ? req.session.cart : {} );
     
     Product.findById(req.params.id).then((product)=> {
         
+//        console.log(req.session.cart);
+        
         cart.add(product, product.id);
         cart.generateArray();
         req.session.cart= cart;
-        res.redirect('/');
+        
+//        console.log(req.session.cart);  
+        
+        if(req.isAuthenticated()){
+           User.findOne({email:req.user.email}).then((user)=> {
+
+           user.cart=req.session.cart;
+
+             user.save().then(()=>{
+
+//                  console.log(user);
+                  res.redirect('/'); 
+             })
+        })
+        }else{
+            res.redirect('/'); 
+        }   
     }); 
 });
 
-router.get('/cart',isLoggedin,(req,res)=> {
+
+router.get('/cart',(req,res)=> {
     
     let cart= req.session.cart || {};
     let itemsArray= cart.itemsArray ||[];
+    
+    console.log(cart.itemsArray);
+//    console.log(req.session.cart);
 //    console.log(itemsArray);
     res.render('routes_UI/cart',{cart, itemsArray, user:req.user});
 
@@ -153,11 +189,12 @@ router.post('/login',
 
 
 
-router.get('/logout',(req, res)=>{
-
-//  req.session.destroy();
-  req.logout();
-  res.redirect('/login');
+router.get('/logout',isLoggedin_4_logout,(req, res)=>{
+ 
+    req.session.destroy();
+    req.logout();
+    res.redirect('/login');
+    
 });
 
                            
@@ -172,7 +209,38 @@ router.get('/',(req, res)=> {
             productChunks.push(products.slice(i, i+chunkSize));
         }
         
-        res.render('routes_UI/index', {productChunks, user:req.user});
+        if(req.isAuthenticated()){
+            
+            User.findOne({email:req.user.email}).then((user)=> {
+                
+
+                let x= JSON.stringify(req.session.cart);
+                let y= JSON.stringify(user.cart);
+                let z= (x !== y);
+               
+                if(req.session.cart && z){
+                    
+                    let cart= new Cart(user.cart ? user.cart : {} );
+                
+                    cart.add2(req.session.cart);
+                    cart.generateArray();
+                    req.session.cart= cart;
+                    user.cart= cart;   
+                    
+                }else{
+                    req.session.cart=user.cart;
+                }   
+                
+                user.save().then(()=> {
+                    res.render('routes_UI/index', {productChunks, user:req.user});
+                })     
+            })          
+        }
+        
+        else{
+            res.render('routes_UI/index', {productChunks});
+        }
+        
     })
 });
 

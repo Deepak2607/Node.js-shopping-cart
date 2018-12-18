@@ -24,7 +24,13 @@
     <h5 class="card-title">{{title}}</h5>
     <p style="color:#696969" class="card-text">{{description}}</p>
     <span style="font-size:25px;font-weight:bold">${{price}}</span>
-    <a style="float:right" href="/add-to-cart/{{_id}}" class="btn btn-success">Add to cart</a>
+      
+  <form action="/add-to-cart/{{_id}}?_method=PUT" method="post" enctype="multipart/form-data">
+  <div class="form-group">
+      <button style="float:right" type="submit" class="btn btn-success" style="cursor:pointer">Add to cart</button>
+  </div>
+  </form>
+          
   </div>
 </div>  
 </div>
