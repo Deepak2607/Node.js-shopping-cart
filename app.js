@@ -14,7 +14,6 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const MongoStore = require('connect-mongo')(session);
 
-
 const app= express();
 const port= process.env.PORT || 8000;
 app.use(express.static(path.join(__dirname, 'public')));
