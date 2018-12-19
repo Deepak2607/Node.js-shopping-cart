@@ -70,23 +70,15 @@ router.put('/add-to-cart/:id',(req,res,next)=> {
     let cart= new Cart(req.session.cart ? req.session.cart : {} );
     
     Product.findById(req.params.id).then((product)=> {
-        
-//        console.log(req.session.cart);
-        
+    
         cart.add(product, product.id);
         cart.generateArray();
         req.session.cart= cart;
         
-//        console.log(req.session.cart);  
-        
         if(req.isAuthenticated()){
            User.findOne({email:req.user.email}).then((user)=> {
-
            user.cart=req.session.cart;
-
              user.save().then(()=>{
-
-//                  console.log(user);
                   res.redirect('/'); 
              })
         })
@@ -102,18 +94,109 @@ router.get('/cart',(req,res)=> {
     let cart= req.session.cart || {};
     let itemsArray= cart.itemsArray ||[];
     
-    console.log(cart.itemsArray);
-//    console.log(req.session.cart);
-//    console.log(itemsArray);
     res.render('routes_UI/cart',{cart, itemsArray, user:req.user});
-
 })
 
 
+router.get('/checkout',isLoggedin, (req,res)=> {
+    let error_message= req.flash('error_message')[0];
+    if(!req.session.cart){
+        req.flash('error_message',`Add some items first.`);
+        res.redirect('/cart');
+    }else{
+        res.render('routes_UI/checkout',{user:req.user, totalPrice:req.session.cart.totalPrice, error_message:error_message});
+    }
+})
+
+router.post('/checkout',(req,res)=> {
+    
+    var stripe = require("stripe")("sk_test_JFyJNPEu7Ld6DOjnMxZU5CTY");
+
+    stripe.charges.create({
+      amount: req.session.cart.totalPrice * 100,
+      currency: "usd",
+      source: req.body.stripeToken, // obtained with Stripe.js
+      description: "Charge for products."
+    }, function(err, charge) {
+      if(err){
+          console.log(err);
+          req.flash('error_message',err.message);
+          return res.redirect('/checkout');
+      }
+        if(charge){
+          console.log(charge);
+           User.findOne({email:req.user.email}).then((user)=> {
+              req.session.cart= null;
+              user.cart= null;
+               
+              user.save().then(()=> {
+                  req.flash('success_message',`successfully bought product(s)!`);
+                  res.redirect('/');
+              })
+           })
+        }
+    });
+    
+})
+                           
+
+router.get('/',(req, res)=> {
+    
+    let success_message= req.flash('success_message');
+    
+    Product.find().then((products)=> {
+        
+        let productChunks=[];
+        const chunkSize= 4;
+        for(let i=0; i<products.length; i +=chunkSize){
+            productChunks.push(products.slice(i, i+chunkSize));
+        }
+        
+        if(req.isAuthenticated()){     
+            User.findOne({email:req.user.email}).then((user)=> {
+                
+                let x= JSON.stringify(req.session.cart);
+                let y= JSON.stringify(user.cart);
+                let z= (x !== y);
+               
+                if(req.session.cart && z){
+                    
+                    let cart= new Cart(user.cart ? user.cart : {} );
+                
+                    cart.add2(req.session.cart);
+                    cart.generateArray();
+                    req.session.cart= cart;
+                    user.cart= cart;   
+                    
+                }else{
+                    req.session.cart=user.cart;
+                }   
+                
+                user.save().then(()=> {
+                    res.render('routes_UI/index', {productChunks, user:req.user,success_message});
+                })     
+            })          
+        }
+        
+        else{
+            res.render('routes_UI/index', {productChunks});
+        }
+        
+    })
+});
+
+
+router.get('/logout',isLoggedin_4_logout,(req, res)=>{
+ 
+    req.session.destroy();
+    req.logout();
+    res.redirect('/login');
+    
+});
+
 
 router.post('/signup',(req,res)=> {
-    
-    
+       
     if(req.body.password!==req.body.confirmPassword){
         req.flash('error_message',`Passwords do not match`);
         res.redirect('/signup');
@@ -186,63 +269,6 @@ router.post('/login',
                           failureFlash: 'Invalid email or password.',
                           successFlash: 'You are logged in, now you can buy products.'}
                        ));
-
-
-
-router.get('/logout',isLoggedin_4_logout,(req, res)=>{
- 
-    req.session.destroy();
-    req.logout();
-    res.redirect('/login');
-    
-});
-
-                           
-
-router.get('/',(req, res)=> {
-    
-    Product.find().then((products)=> {
-        
-        let productChunks=[];
-        const chunkSize= 4;
-        for(let i=0; i<products.length; i +=chunkSize){
-            productChunks.push(products.slice(i, i+chunkSize));
-        }
-        
-        if(req.isAuthenticated()){
-            
-            User.findOne({email:req.user.email}).then((user)=> {
-                
-
-                let x= JSON.stringify(req.session.cart);
-                let y= JSON.stringify(user.cart);
-                let z= (x !== y);
-               
-                if(req.session.cart && z){
-                    
-                    let cart= new Cart(user.cart ? user.cart : {} );
-                
-                    cart.add2(req.session.cart);
-                    cart.generateArray();
-                    req.session.cart= cart;
-                    user.cart= cart;   
-                    
-                }else{
-                    req.session.cart=user.cart;
-                }   
-                
-                user.save().then(()=> {
-                    res.render('routes_UI/index', {productChunks, user:req.user});
-                })     
-            })          
-        }
-        
-        else{
-            res.render('routes_UI/index', {productChunks});
-        }
-        
-    })
-});
 
 
 

@@ -1,4 +1,12 @@
+
+{{#if error_message}}
 <br>
+<div class="alert alert-danger">
+{{error_message}}
+</div>
+{{/if}}
+<br>
+
 <div class="row">
 <div class="col-md-4"></div>
 <div class="col-md-4">
@@ -28,7 +36,7 @@
     <br>
     <h5>Total Amount: ${{cart.totalPrice}}</h5> 
     <hr>
-    <button type="button" class="btn btn-success">Checkout</button>
+    <a href="/checkout" type="button" class="btn btn-success">Checkout</a>
      {{else}}
     <h4 align="center">No items in cart</h4>
     {{/if}}
