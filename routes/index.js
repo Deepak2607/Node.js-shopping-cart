@@ -3,6 +3,7 @@ var router = express.Router();
 const bcrypt= require('bcryptjs');
 const {Product}= require('../models/product');
 const {User}= require('../models/user');
+const {Order}= require('../models/order');
 const Cart= require('../models/cart');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
@@ -60,7 +61,11 @@ router.get('/login',isLoggedout,(req,res,next)=> {
 
 router.get('/profile',isLoggedin,(req,res,next)=> {
  
-    res.render('routes_UI/profile',{user:req.user});
+    Order.find({userEmail:req.user.email}).then((orders)=> {
+        
+        console.log(orders);
+        res.render('routes_UI/profile',{user:req.user, orders:orders});
+    })
 })
 
     
@@ -124,16 +129,22 @@ router.post('/checkout',(req,res)=> {
           return res.redirect('/checkout');
       }
         if(charge){
-          console.log(charge);
+            
+            console.log(charge);
+            const newOrder= new Order({
+                userEmail:req.user.email,
+                order:req.user.cart,
+                name:req.body.name,
+                address:req.body.address,
+                paymentId:charge.id,     
+            })
+            newOrder.save();
+            
+        
            User.findOne({email:req.user.email}).then((user)=> {
                
-              let orders= new Cart(user.orders ? user.orders : {});
-              
-              orders.add2(user.cart);
-              orders.generateArray();
-              user.orders= orders;
-               console.log(orders);
-               
+//              user.orders.push(user.cart);
+//              console.log(user.orders[0]);
               req.session.cart= null;
               user.cart= null;
                
@@ -150,6 +161,7 @@ router.post('/checkout',(req,res)=> {
 
 router.get('/',(req, res)=> {
     
+
     let success_message= req.flash('success_message');
 
     Product.find().then((products)=> {

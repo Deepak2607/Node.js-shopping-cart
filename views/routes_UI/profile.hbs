@@ -1,3 +1,106 @@
-<div>
-    <h2>Profile</h2>
+
+{{#if error_message}}
+<br>
+<div class="alert alert-danger">
+{{error_message}}
 </div>
+{{/if}}
+
+<br>
+<div class="row">
+<div class="col-md-3"></div>
+    
+<div class="col-md-6">
+  
+  <h2><u>My orders</u></h2>
+  <br>      
+    
+{{#if orders}}
+{{#each orders}}
+
+<div class="card">
+   
+  <div class="card-body">
+    {{#each order.itemsArray}}
+      
+      <ul class="list-group"> 
+      <li class="list-group-item">
+      <span style="font-weight:bold">{{item.title}}</span>
+       &ensp;
+      <span class="badge badge-success">${{item.price}} each</span>   
+       &ensp;&ensp;
+      <span style="float:right" class="badge badge-secondary badge-pill">{{qty}}</span> 
+      </li> 
+      </ul>
+      
+    {{/each}}  
+  </div>
+    
+  <div class="card-footer text-muted">
+    <p>Total Amount:&nbsp; <span style="font-weight:bold">${{order.totalPrice}}</span></p> 
+    <p>Payment ID:&nbsp; <span style="font-weight:bold">{{paymentId}}</span></p> 
+  </div>
+    
+</div>
+<br>
+
+{{/each}}
+
+{{else}}  
+  <h4 algn="center">No items in cart</h4>
+{{/if}}       
+        
+</div>
+    
+<div class="col-md-3"></div>
+</div>
+
+
+
+
+
+
+
+
+<!--
+<div class="row">
+<div class="col-md-4"></div>
+<div class="col-md-4">
+    <br>
+    <h2><u>My orders</u></h2><br>
+    
+{{#if orders}}  
+{{#each orders}}
+<ul class="list-group"> 
+      
+{{#each order.itemsArray}}
+  <li class="list-group-item">
+  <span style="font-weight:bold">{{item.title}}</span>
+   &ensp;
+  <span class="badge badge-success">${{item.price}} each</span>   
+   &ensp;&ensp;
+       
+  <span style="float:right" class="badge badge-secondary badge-pill">{{qty}}</span> 
+  </li> 
+{{/each}}
+      
+  <br>
+  <h5>Total Amount: ${{order.totalPrice}}</h5> 
+  <h6>Payment ID: <span class="badge badge-success">{{paymentId}}</span></h6> 
+
+  
+    
+  </ul>
+  <hr>
+  <br>
+    
+{{/each}}
+{{else}}
+    
+    <h4 algn="center">No items</h4>
+{{/if}}
+  
+</div>
+<div class="col-md-4"></div>
+</div>
+-->
