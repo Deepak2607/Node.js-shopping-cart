@@ -126,6 +126,14 @@ router.post('/checkout',(req,res)=> {
         if(charge){
           console.log(charge);
            User.findOne({email:req.user.email}).then((user)=> {
+               
+              let orders= new Cart(user.orders ? user.orders : {});
+              
+              orders.add2(user.cart);
+              orders.generateArray();
+              user.orders= orders;
+               console.log(orders);
+               
               req.session.cart= null;
               user.cart= null;
                
@@ -143,7 +151,7 @@ router.post('/checkout',(req,res)=> {
 router.get('/',(req, res)=> {
     
     let success_message= req.flash('success_message');
-    
+
     Product.find().then((products)=> {
         
         let productChunks=[];
@@ -158,7 +166,9 @@ router.get('/',(req, res)=> {
                 let x= JSON.stringify(req.session.cart);
                 let y= JSON.stringify(user.cart);
                 let z= (x !== y);
-               
+                
+                console.log(user.cart);
+                console.log(req.session.cart);
                 if(req.session.cart && z){
                     
                     let cart= new Cart(user.cart ? user.cart : {} );
@@ -166,12 +176,13 @@ router.get('/',(req, res)=> {
                     cart.add2(req.session.cart);
                     cart.generateArray();
                     req.session.cart= cart;
-                    user.cart= cart;   
+                    user.cart= cart;
+                    
                     
                 }else{
                     req.session.cart=user.cart;
                 }   
-                
+                console.log(req.session.cart);
                 user.save().then(()=> {
                     res.render('routes_UI/index', {productChunks, user:req.user,success_message});
                 })     

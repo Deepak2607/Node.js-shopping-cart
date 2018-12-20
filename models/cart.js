@@ -24,17 +24,19 @@ module.exports=function Cart(oldCart){
                     count++;
                 }
             }
-            if(count==1){
+            if(count!==0){
+                let item= cart.items[id1];
                 let storedItem= this.items[id1];
-                storedItem.qty++;
+                
+                storedItem.qty += item.qty;
                 storedItem.price= storedItem.item.price * storedItem.qty;
-                this.totalQty++;
-                this.totalPrice += storedItem.item.price;
+                this.totalQty += item.qty;
+                this.totalPrice += storedItem.item.price * item.qty;
             }else{
                 let item= cart.items[id1];
-                this.items[id1] = {item: item.item, qty: 1, price: item.item.price};
-                this.totalQty++;
-                this.totalPrice += item.item.price;
+                this.items[id1] = {item: item.item, qty: item.qty, price: item.item.price * item.qty};
+                this.totalQty += item.qty;
+                this.totalPrice += item.item.price * item.qty;
             }
         }
     }

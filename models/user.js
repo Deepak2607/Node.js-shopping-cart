@@ -17,6 +17,10 @@ const UserSchema= new mongoose.Schema({
     cart:{
         type: Object,
         default:null
+    },
+    orders:{
+        type: Object,
+        default:null
     }
 }, {usePushEach: true})
 const User= mongoose.model('users', UserSchema);

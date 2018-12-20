@@ -18,7 +18,7 @@ function stripeResponseHandler(status, response) {
     
   if (response.error) {   
     $('#charge-error').text(response.error.message);
-    $('#charge-error').removeClass('hidden');
+    $('#charge-error').removeClass('invisible');
     $form.find('button').prop('disabled', false); 
   }
   else{ 
