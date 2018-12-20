@@ -68,6 +68,43 @@ router.get('/profile',isLoggedin,(req,res,next)=> {
     })
 })
 
+router.get('/reduce/:id',(req,res)=> {
+    
+    let cart= new Cart(req.session.cart ? req.session.cart : {} );
+    cart.reduceByOne(req.params.id);
+    cart.generateArray();
+    req.session.cart= cart;
+    
+    if(req.isAuthenticated()){ 
+        User.findOne({email:req.user.email}).then((user)=> {
+            user.cart= cart;  
+            user.save();
+            console.log(user.cart);
+        })
+    }
+    console.log(req.session.cart);   
+    res.redirect('/cart');    
+})
+
+
+router.get('/removeItem/:id',(req,res)=> {
+    
+    let cart= new Cart(req.session.cart ? req.session.cart : {} );
+    cart.removeItem(req.params.id);
+    cart.generateArray();
+    req.session.cart= cart;
+    
+    if(req.isAuthenticated()){ 
+        User.findOne({email:req.user.email}).then((user)=> {
+            user.cart= cart;  
+            user.save();
+            console.log(user.cart);
+        })
+    } 
+    console.log(req.session.cart);
+    res.redirect('/cart');    
+})
+
     
 
 router.put('/add-to-cart/:id',(req,res,next)=> {

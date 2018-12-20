@@ -15,6 +15,29 @@ module.exports=function Cart(oldCart){
         this.totalPrice += storedItem.item.price;
     };
     
+    this.reduceByOne= function(id){
+        
+        let storedItem= this.items[id];
+        storedItem.qty--;
+        storedItem.price -= storedItem.item.price;
+        this.totalQty--;
+        this.totalPrice -= storedItem.item.price;
+        if(storedItem.qty==0){
+            delete this.items[id];
+        }
+    }
+    
+    this.removeItem= function(id){
+        
+        let storedItem= this.items[id];
+        this.totalQty -= storedItem.qty;
+        this.totalPrice -= storedItem.item.price * storedItem.qty;
+        storedItem.qty=0;
+        storedItem.price=0;
+        
+        delete this.items[id];   
+    }
+    
     this.add2= function(cart){
       
         for(let id1 in cart.items){

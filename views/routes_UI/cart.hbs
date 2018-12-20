@@ -24,11 +24,15 @@
     Change
   </button>
   <div class="dropdown-menu">
-    <a class="dropdown-item" href="#">Reduce by 1</a>
-    <a class="dropdown-item" href="#">Remove all</a>
+    <a class="dropdown-item" href="/reduce/{{item._id}}">Reduce by 1</a>
+    <a class="dropdown-item" href="/removeItem/{{item._id}}">Remove all</a>
   </div>
   </div>
       
+      
+      
+      
+    
     <span style="float:right" class="badge badge-secondary badge-pill">{{qty}}</span> 
   </li> 
       {{/each}}
